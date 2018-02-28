@@ -3,8 +3,14 @@
 export default class CableCar {
 
   constructor(store, channel, options = {}) {
-    if (typeof ActionCable === 'undefined') {
-      throw new Error('CableCar tried to connect to ActionCable but ActionCable is not defined');
+    if (typeof ActionCable === "undefined") {
+      CableCar.ActionCable = require("actioncable");
+
+      if (typeof CableCar.ActionCable === "undefined") {
+        throw new Error("CableCar tried to connect to ActionCable but ActionCable is not defined");
+      }
+    } else {
+      CableCar.ActionCable = ActionCable;
     }
 
     if (typeof channel !== 'string') {
@@ -26,7 +32,7 @@ export default class CableCar {
     let params = options.params || {};
     params = Object.assign({ channel }, params);
 
-    this.subscription = ActionCable.createConsumer(options.wsURL).subscriptions.create(
+    this.subscription = CableCar.ActionCable.createConsumer(options.wsURL).subscriptions.create(
       params, {
         initialized: this.initialized,
         connected: this.connected,
